@@ -80,17 +80,22 @@ if st.button("Analyze Text"):
 
 # Batch Analysis
 st.subheader("Batch Analysis from File")
-uploaded_file = st.file_uploader("Upload a CSV file with a 'Text' column", type="csv")
+uploaded_file = st.file_uploader("Upload a CSV file", type="csv")
 if uploaded_file is not None:
     df = pd.read_csv(uploaded_file)
-    if 'Text' in df.columns:
-        st.write("### Uploaded Dataset Preview")
-        st.dataframe(df.head())
+    
+    # Show the first few rows of the dataset for the user to view and check columns
+    st.write("### Uploaded Dataset Preview")
+    st.dataframe(df.head())
 
-        if st.button("Analyze Dataset"):
+    # Let the user select the column that contains the text data
+    text_column = st.selectbox("Select the column that contains text data", df.columns)
+    
+    if st.button("Analyze Dataset"):
+        if text_column:
             st.write("### Analyzing Dataset...")
             results = []
-            for text in df['Text']:
+            for text in df[text_column]:
                 vader_result = analyze_sentiment_vader(text)
                 roberta_result = analyze_sentiment_roberta(text)
                 combined_result = {
@@ -119,5 +124,5 @@ if uploaded_file is not None:
                 file_name="sentiment_results.csv",
                 mime="text/csv"
             )
-    else:
-        st.error("The uploaded file must contain a 'Text' column.")
+        else:
+            st.error("Please select a column with text data.")
